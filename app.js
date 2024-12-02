@@ -71,4 +71,14 @@ async function updateGoogleSheet(payload) {
   });
 }
 
+fetch('https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec', {
+  method: 'GET', // or 'POST' if needed
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+
 loadInventory();
