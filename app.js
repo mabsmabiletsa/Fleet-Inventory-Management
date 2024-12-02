@@ -1,84 +1,50 @@
-const addItemForm = document.getElementById('add-item-form');
-const issueItemForm = document.getElementById('issue-item-form');
-const inventoryTableBody = document.getElementById('inventory-table').querySelector('tbody');
+const airtableBaseId = "Workspace"; // Replace with your Airtable Base ID
+const airtableApiKey = "patqPB7AsnbwY7r7j.c1a2a63f8bc2d5488d9475b12b74cd5e8f5e690c493535c2cb5427bec6269cdf"; // Replace with your Airtable API Key
+const airtableTableName = "Fleet Inventory Managemen"; // Replace with your Airtable Table name
 
-// Add Item
-addItemForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const itemName = document.getElementById('item-name').value;
-    const quantity = document.getElementById('item-quantity').value;
-    const receiverName = document.getElementById('receiver-name').value;
-    const timestamp = new Date().toISOString(); // Current date and time
-  
-    // Send to Google Sheets
-    await updateGoogleSheet({ 
-      action: 'add', 
-      itemName, 
-      quantity, 
-      receiverName, 
-      timestamp 
-    });
-    addItemForm.reset();
-    loadInventory();
-  });
-  
+// Function to fetch all inventory records from Airtable
+async function fetchInventory() {
+  const url = `https://api.airtable.com/v0/${airtableBaseId}/${airtableTableName}`;
+  const headers = {
+    Authorization: `Bearer ${airtableApiKey}`,
+  };
 
-// Issue Item
-issueItemForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const itemName = document.getElementById('issue-item-name').value;
-    const quantity = document.getElementById('issue-quantity').value;
-    const issueTo = document.getElementById('issue-to').value;
-    const timestamp = new Date().toISOString(); // Current date and time
-  
-    // Send to Google Sheets
-    await updateGoogleSheet({ 
-      action: 'issue', 
-      itemName, 
-      quantity, 
-      issueTo, 
-      timestamp 
-    });
-    issueItemForm.reset();
-    loadInventory();
-  });
-  
-
-// Load Inventory from Google Sheets
-async function loadInventory() {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec");
+  try {
+    const response = await fetch(url, { headers });
     const data = await response.json();
-  
-    inventoryTableBody.innerHTML = data.map(row => `
-      <tr>
-        <td>${row.itemName}</td>
-        <td>${row.quantity}</td>
-        <td>${row.receiverName || ''}</td>
-        <td>${row.issueTo || ''}</td>
-        <td>${row.receivedAt || ''}</td>
-        <td>${row.issuedAt || ''}</td>
-      </tr>
-    `).join('');
+    console.log(data.records); // Log all records from Airtable
+  } catch (error) {
+    console.error("Error fetching inventory:", error);
   }
-  
-
-// Update Google Sheets
-async function updateGoogleSheet(payload) {
-  await fetch("https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
 }
 
-fetch("https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec", {
-  method: 'GET', // or 'POST' if needed
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-.then(response => response.json())
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));
+// Function to add a new inventory record to Airtable
+async function addInventoryRecord(itemName, quantity, receiver, action) {
+  const url = `https://api.airtable.com/v0/${airtableBaseId}/${airtableTableName}`;
+  const headers = {
+    Authorization: `Bearer ${airtableApiKey}`,
+    "Content-Type": "application/json",
+  };
 
-loadInventory();
+  const record = {
+    fields: {
+      "Item Name": itemName,
+      Quantity: quantity,
+      "Receiver/Issuer Name": receiver,
+      Action: action,
+      "Date/Time": new Date().toISOString(), // Timestamp of action
+    },
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(record),
+    });
+    const data = await response.json();
+    console.log("Record added:", data);
+  } catch (error) {
+    console.error("Error adding inventory record:", error);
+  }
+}
