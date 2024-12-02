@@ -46,7 +46,7 @@ issueItemForm.addEventListener('submit', async (e) => {
 
 // Load Inventory from Google Sheets
 async function loadInventory() {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec');
+    const response = await fetch("https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec");
     const data = await response.json();
   
     inventoryTableBody.innerHTML = data.map(row => `
@@ -64,14 +64,14 @@ async function loadInventory() {
 
 // Update Google Sheets
 async function updateGoogleSheet(payload) {
-  await fetch('https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec', {
+  await fetch("https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
 }
 
-fetch('https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec', {
+fetch("https://script.google.com/macros/s/AKfycbwfDK-WLqyE5QH675-2hNkoSYaQDfOWvH_ODCOpNeeUcD_-q_sPsRT9UJvAGlo2TYUfZQ/exec", {
   method: 'GET', // or 'POST' if needed
   headers: {
     'Content-Type': 'application/json',
